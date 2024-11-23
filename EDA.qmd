@@ -6,23 +6,25 @@ format: html
 
 # Project 3: Modeling
 
-This project explores a dataset, develops models for it, and provides an API interface for on-demand model results.
+This project explores a dataset, develops models for it, and provides an API interface for on-demand model results. This is one of two Quarto documents; the other is linked at the bottom of this page.
 
-## Dataset
+## Project introduction
 
-I am studying data on diabetes health indicators, pulled from Kaggle. The following summaries are from the [dataset source page](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/):
+### Dataset
 
-### Survey summary
+We are studying data on diabetes health indicators, pulled from Kaggle. The following summaries are from the [dataset source page](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/):
+
+#### Survey summary
 
 *The Behavioral Risk Factor Surveillance System (BRFSS) is a health-related telephone survey that is collected annually by the CDC. Each year, the survey collects responses from over 400,000 Americans on health-related risk behaviors, chronic health conditions, and the use of preventative services. It has been conducted every year since 1984. For this project, a csv of the dataset available on Kaggle for the year 2015 was used. This original dataset contains responses from 441,455 individuals and has 330 features. These features are either questions directly asked of participants, or calculated variables based on individual participant responses.*
 
-### Data file summary
+#### Data file summary
 
 `diabetes _ binary _ health _ indicators _ BRFSS2015.csv` *is a clean dataset of 253,680 survey responses to the CDC's BRFSS2015. The target variable Diabetes_binary has 2 classes. 0 is for no diabetes, and 1 is for prediabetes or diabetes. This dataset has 21 feature variables and is not balanced.*
 
-### Column descriptions
+#### Column descriptions
 
-`Diabetes_binary`
+`Diabetes_binary` **(response variable)**
 0 = no diabetes 1 = prediabetes 2 = diabetes
 
 `HighBP`
@@ -88,11 +90,57 @@ Education level (EDUCA see codebook) scale 1-6 1 = Never attended school or only
 `Income`
 Income scale (INCOME2 see codebook) scale 1-8 1 = less than $10,000 5 = less than $35,000 8 = $75,000 or more
 
-## Process
+### Contents
 
+There are six components to this project.
 
+1. EDA - quarto file with EDA *(this file)*
 
+1. Modeling - quarto file to select the best model using `tidymodels`
 
+1. API - R file fitting the model and defining API structure
+
+1. Dockerfile - for building the Docker image
+
+1. .tar - Docker image
+
+1. Demo - video showing me demonstrating my Docker container
+
+### R libraries
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+
+```
+
+## EDA
+
+As typical, let's conduct standard data cleanup checks, ETL, and other EDA tasks before proceeding to model the data.
+
+- proper data types
+- missing or malformed values
+- factoring
+- categorical summaries (single and multi)
+- numeric summaries (single and multi)
+- plots
+
+### Data read
+
+Read the data into our instance, in the variable `data`.
+
+```{r}
+data <- read_csv(file = 'diabetes_binary_health_indicators_BRFSS2015.csv')
+```
+
+### Data types
+
+Review the data types auto-assigned to each column. We know that there will be categorical variables identified as numerics, requiring factor updates.
+
+```{r}
+str(data)
+#attributes(data)
+```
 
 
 
