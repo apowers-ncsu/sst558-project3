@@ -404,6 +404,7 @@ g
 That is staggeringly clear, a strong predictor.
 
 ```{r}
+g <- data |> ggplot()
 g +
   aes(
     x=MentHlth,
@@ -420,6 +421,7 @@ g +
 ```
 
 ```{r}
+g <- data |> ggplot()
 g +
   aes(
     x=PhysHlth,
@@ -452,6 +454,7 @@ The summary stats confirm the takes noted above. Stronger correlation between me
 Instead, let's check a boxplot of the numeric fields across categories including the response variable.
 
 ```{r}
+g <- data |> ggplot()
 g +
   aes(
 
