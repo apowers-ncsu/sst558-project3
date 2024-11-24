@@ -148,9 +148,8 @@ As typical, let's conduct standard data cleanup checks, ETL, and other EDA tasks
 - missing or malformed values
 - proper data types
 - factoring
-- categorical summaries (single and multi)
-- numeric summaries (single and multi)
-- plots
+- categorical summaries 
+- numeric summaries
 
 ### Data read
 
@@ -393,7 +392,7 @@ g <- data |>
     )
   ) +
   labs(
-    title="BMI Histogram with Diabetes state",
+    title="BMI density chart with Diabetes state",
   ) +
   geom_density(
     alpha=0.5
@@ -404,13 +403,75 @@ g
 
 That is staggeringly clear, a strong predictor.
 
+```{r}
+g +
+  aes(
+    x=MentHlth,
+    fill=Diabetes_binary
+  ) +
+  labs(
+    title="Mental Health Incidents Histogram with Diabetes state",
+  ) +
+  geom_histogram(
+    alpha=0.5,
+    binwidth=2
+  ) 
 
+```
 
+```{r}
+g +
+  aes(
+    x=PhysHlth,
+    fill=Diabetes_binary
+  ) +
+  labs(
+    title="Physical Health Incidents Histogram with Diabetes state",
+  ) +
+  geom_histogram(
+    alpha=0.5,
+    binwidth=2
+  ) 
 
+```
 
+These health numeric variables are skewed heavily right, with most respondents reporting 0. I don't expect much to come from it but let's check summaries and correlation too.
 
+```{r}
+data |> 
+  select(BMI,MentHlth,PhysHlth) |>
+  summary()
+```
 
-I think many of the predictors may relate to the response variable here. So, I'll proceed to some modeling to understand 
+```{r}
+cor(data[sapply(data,is.numeric)]) 
+```
+
+The summary stats confirm the takes noted above. Stronger correlation between mental health incident days and physical health incident days, which sounds reasonable. No need to explore a scatterplot here, for these few and clear numeric variables.
+
+Instead, let's check a boxplot of the numeric fields across categories including the response variable.
+
+```{r}
+g +
+  aes(
+
+  ) +
+  labs(
+    title="BMI over Diabetes state by Sex",
+  ) +
+  geom_boxplot(
+    aes(
+      x=BMI,
+      fill=Diabetes_binary
+      )  
+    ) +
+  facet_grid( Sex~.)
+```
+
+So, higher BMIs link with diabetic state in both sexes. Also, interesting to see the range of BMI for diabetic females is a little wider than that of males. 
+
+Done with EDA here. I think many of the predictors may relate to the response variable, so I'll proceed to modeling to understand more about the stronger predictor variables, then perhaps study further.
+
 
 
 
