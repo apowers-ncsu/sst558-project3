@@ -4,23 +4,130 @@ author: "Andy Powers"
 format: html
 ---
 
-## Quarto
+## Project Introduction
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+This is the continuation of the project introduced in [EDA.qmd](EDA.qmd).
 
-## Running Code
+### Contents
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+There are six components to this project.
+
+1.  EDA - quarto file with EDA *(this file)*
+
+2.  Modeling - quarto file to select the best model using `tidymodels`
+
+3.  API - R file fitting the model and defining API structure
+
+4.  Dockerfile - for building the Docker image
+
+5.  .tar - Docker image
+
+6.  Demo - video showing me demonstrating my Docker container
+
+## Modeling
+
+This Quarto file continues into the Modeling step. We need to make a training/test split (70/30) and include a seed. We will predict the diabetes response variable using different models via `tidymodels`, evaluating with 5CV log-loss as metric. I'm not stratifying the split.
+
+### Data split
+
+I'm using a 70% split for a training subset of the data. Here, I'm also specifying the seed as 1.
 
 ```{r}
-1 + 1
+set.seed(1)
+
+split <- initial_split(data, prop = 0.7)
+train <- training(split)
+test <- testing(split)
+train_5cv <- vfold_cv(train, 5)
+
+#adding another copy for a first, smaller pass to find interesting variables for full modeling
+first_split <- initial_split(sample_n(data, 20000), prop = 0.7)
+first_train <- training(first_split)
+first_test <- testing(first_split)
+first_train_5cv <- vfold_cv(first_train, 5)
 ```
 
-You can add options to executable code like this 
+### Classification Tree
+
+The first model type used here is a classification tree. As the tree builds, at each level the best (per our metric) predictor and its value are used to separate into two subsequent branches of the tree: is x > 0.5? Yes - path A; No - path B. Then recursively the same occurs at each subsequent branch, up to some number of levels of the tree. This is not an optimal solution, as it can be influenced significantly by the data grabbed in the training set, but it is fairly intuitive to interpret as a series of sequential yes/no decisions that land either on a success or failure (most prevalent for training data) at the bottom of the tree.
+
+We will tune the number of levels and any other tunable parameters, using 5Fold CV as mentioned earlier.
+
+#### Recipe definition
+
+Not much needs to happen here, aside from creating numerous dummy variables. I will also normalize my few numeric variables. I will start first with a 21 predictor set for a subset (20000), to attempt to see the predictive strength of each input. Then, I'll choose some smaller number of the more interesting variables to use for the rest of the work (including a re-evaluation of this model).
 
 ```{r}
-#| echo: false
-2 * 2
+#first, adjusting
+recipe <- recipe(Diabetes_binary ~ ., data = first_train) |>
+  
+  #normalize numerics
+  step_normalize(
+    all_numeric(),
+    -all_outcomes()
+    ) |>
+  
+  #dummy vars for categorical items
+  step_dummy(
+    all_factor_predictors()
+    )
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+#### Model tuning
+
+Now, defining the model characteristics, workflow, and tuning.
+
+```{r}
+#model
+model_classtree <- 
+  decision_tree(
+    tree_depth = tune(),
+    min_n = tune(),
+    cost_complexity = tune()
+    ) |>
+  set_engine("rpart")|>#,importance="impurity") |>
+  set_mode("classification")
+
+#workflow
+workflow_classtree <- workflow() |>
+  add_recipe(recipe) |>
+  add_model(model_classtree)
+
+#grid config
+grid_classtree <- grid_regular(
+  cost_complexity(),
+  tree_depth(),
+  min_n(),
+  levels = c(5, 5, 5)
+  )
+
+#tuning setup
+temp <- workflow_classtree |> 
+  tune_grid(
+    resamples = first_train_5cv,
+    grid=grid_classtree,
+    metrics = metric_set(mn_log_loss)
+    )
+
+temp |> 
+  collect_metrics()
+```
+
+Continuing with tuning accordingly for this first, small pass, and then displaying coefficients.
+
+```{r}
+tune_classtree <- temp |>
+  select_best()
+
+first_workflow_classtree <- workflow_classtree |>
+  finalize_workflow(tune_classtree)
+first_fit_classtree <- first_workflow_classtree |>
+  fit(first_train)
+
+extract_fit_engine(first_fit_classtree)$imp |>
+  mutate(term = factor(term, levels = term)) |>
+  ggplot(aes(x = term, y = value)) +
+  geom_bar(stat ="identity") +
+  coord_flip()
+```
+

@@ -24,114 +24,65 @@ We are studying data on diabetes health indicators, pulled from Kaggle. The foll
 
 #### Column descriptions
 
-`Diabetes_binary` **(response variable)**
-0 = no diabetes 1 = diabetes
+`Diabetes_binary` **(response variable)** 0 = no diabetes 1 = diabetes
 
-`HighBP`
-0 = no high BP 1 = high BP
+`HighBP` 0 = no high BP 1 = high BP
 
-`HighChol`
-0 = no high cholesterol 1 = high cholesterol
+`HighChol` 0 = no high cholesterol 1 = high cholesterol
 
-`CholCheck`
-0 = no cholesterol check in 5 years 1 = yes cholesterol check in 5 years
+`CholCheck` 0 = no cholesterol check in 5 years 1 = yes cholesterol check in 5 years
 
-`BMI`
-Body Mass Index
+`BMI` Body Mass Index
 
-`Smoker`
-Have you smoked at least 100 cigarettes in your entire life? [Note: 5 packs = 100 cigarettes] 0 = no 1 = yes
+`Smoker` Have you smoked at least 100 cigarettes in your entire life? \[Note: 5 packs = 100 cigarettes\] 0 = no 1 = yes
 
-`Stroke`
-(Ever told) you had a stroke. 0 = no 1 = yes
+`Stroke` (Ever told) you had a stroke. 0 = no 1 = yes
 
-`HeartDiseaseorAttack`
-coronary heart disease (CHD) or myocardial infarction (MI) 0 = no 1 = yes
+`HeartDiseaseorAttack` coronary heart disease (CHD) or myocardial infarction (MI) 0 = no 1 = yes
 
-`PhysActivity`
-physical activity in past 30 days - not including job 0 = no 1 = yes
+`PhysActivity` physical activity in past 30 days - not including job 0 = no 1 = yes
 
-`Fruits`
-Consume Fruit 1 or more times per day 0 = no 1 = yes
+`Fruits` Consume Fruit 1 or more times per day 0 = no 1 = yes
 
-`Veggies`
-Consume Vegetables 1 or more times per day 0 = no 1 = yes
+`Veggies` Consume Vegetables 1 or more times per day 0 = no 1 = yes
 
-`HvyAlcoholConsump`
-(adult men >=14 drinks per week and adult women>=7 drinks per week) 0 = no 1 = yes
+`HvyAlcoholConsump` (adult men \>=14 drinks per week and adult women\>=7 drinks per week) 0 = no 1 = yes
 
-`AnyHealthcare`
-Have any kind of health care coverage, including health insurance, prepaid plans such as HMO, etc. 0 = no 1 = yes
+`AnyHealthcare` Have any kind of health care coverage, including health insurance, prepaid plans such as HMO, etc. 0 = no 1 = yes
 
-`NoDocbcCost`
-Was there a time in the past 12 months when you needed to see a doctor but could not because of cost? 0 = no 1 = yes
+`NoDocbcCost` Was there a time in the past 12 months when you needed to see a doctor but could not because of cost? 0 = no 1 = yes
 
-`GenHlth`
-Would you say that in general your health is: scale 1-5 1 = excellent 2 = very good 3 = good 4 = fair 5 = poor
+`GenHlth` Would you say that in general your health is: scale 1-5 1 = excellent 2 = very good 3 = good 4 = fair 5 = poor
 
-`MentHlth`
-days of poor mental health scale 1-30 days
+`MentHlth` days of poor mental health scale 1-30 days
 
-`PhysHlth`
-physical illness or injury days in past 30 days scale 1-30
+`PhysHlth` physical illness or injury days in past 30 days scale 1-30
 
-`DiffWalk`
-Do you have serious difficulty walking or climbing stairs? 0 = no 1 = yes
+`DiffWalk` Do you have serious difficulty walking or climbing stairs? 0 = no 1 = yes
 
-`Sex`
-0 = female 1 = male
+`Sex` 0 = female 1 = male
 
-`Age`
-13-level age category (_AGEG5YR see codebook) scale 1-13 
-- 1 = 18-24 
-- 2 = 25-29 
-- 3 = 30-34 
-- 4 = 35-39 
-- 5 = 40-44 
-- 6 = 45-49 
-- 7 = 50-54 
-- 8 = 55-59 
-- 9 = 60-64 
-- 10 = 65-69 
-- 11 = 70-74 
-- 12 = 75-79 
-- 13 = 80 or older 
+`Age` 13-level age category (\_AGEG5YR see codebook) scale 1-13 - 1 = 18-24 - 2 = 25-29 - 3 = 30-34 - 4 = 35-39 - 5 = 40-44 - 6 = 45-49 - 7 = 50-54 - 8 = 55-59 - 9 = 60-64 - 10 = 65-69 - 11 = 70-74 - 12 = 75-79 - 13 = 80 or older
 
-`Education`
-Education level (EDUCA see codebook) scale 1-6 
-- 1 = Never attended school or only kindergarten 
-- 2 = Grades 1 through 8 (Elementary) 
-- 3 = Grades 9 through 11 (Some high school) 
-- 4 = Grade 12 or GED (High school graduate) 
-- 5 = College 1 year to 3 years (Some college or technical school) 
-- 6 = College 4 years or more (College graduate)
+`Education` Education level (EDUCA see codebook) scale 1-6 - 1 = Never attended school or only kindergarten - 2 = Grades 1 through 8 (Elementary) - 3 = Grades 9 through 11 (Some high school) - 4 = Grade 12 or GED (High school graduate) - 5 = College 1 year to 3 years (Some college or technical school) - 6 = College 4 years or more (College graduate)
 
-`Income`
-Income scale (INCOME2 see codebook) scale 1-8 
-- 1 = less than $10,000 
-- 2 = Less than $15,000 ($10,000 to less than $15,000) 
-- 3 = Less than $20,000 ($15,000 to less than $20,000) 
-- 4 = Less than $25,000 ($20,000 to less than $25,000) 
-- 5 = Less than $35,000 ($25,000 to less than $35,000) 
-- 6 = Less than $50,000 ($35,000 to less than $50,000) 
-- 7 = Less than $75,000 ($50,000 to less than $75,000) 
-- 8 = $75,000 or more
+`Income` Income scale (INCOME2 see codebook) scale 1-8 - 1 = less than \$10,000 - 2 = Less than \$15,000 (\$10,000 to less than \$15,000) - 3 = Less than \$20,000 (\$15,000 to less than \$20,000) - 4 = Less than \$25,000 (\$20,000 to less than \$25,000) - 5 = Less than \$35,000 (\$25,000 to less than \$35,000) - 6 = Less than \$50,000 (\$35,000 to less than \$50,000) - 7 = Less than \$75,000 (\$50,000 to less than \$75,000) - 8 = \$75,000 or more
 
 ### Contents
 
 There are six components to this project.
 
-1. EDA - quarto file with EDA *(this file)*
+1.  EDA - quarto file with EDA *(this file)*
 
-1. Modeling - quarto file to select the best model using `tidymodels`
+2.  Modeling - quarto file to select the best model using `tidymodels`
 
-1. API - R file fitting the model and defining API structure
+3.  API - R file fitting the model and defining API structure
 
-1. Dockerfile - for building the Docker image
+4.  Dockerfile - for building the Docker image
 
-1. .tar - Docker image
+5.  .tar - Docker image
 
-1. Demo - video showing me demonstrating my Docker container
+6.  Demo - video showing me demonstrating my Docker container
 
 ### R libraries
 
@@ -143,13 +94,13 @@ library(tidymodels)
 
 ## EDA
 
-As typical, let's conduct standard data cleanup checks, ETL, and other EDA tasks before proceeding to model the data.
+As typical, let's conduct standard data cleanup checks, ETL, and other EDA tasks before proceeding to model the data. Although a best practice would be to split the data at hand into a training and testing set first, I'm studying the full data.
 
-- missing or malformed values
-- proper data types
-- factoring
-- categorical summaries 
-- numeric summaries
+-   missing or malformed values
+-   proper data types
+-   factoring
+-   categorical summaries
+-   numeric summaries
 
 ### Data read
 
@@ -244,6 +195,7 @@ data <- data |> mutate(
 ```
 
 #### Adjust numeric
+
 Transitioning from double to integers where needed. Checking values to confirm integers appropriate before switch.
 
 ```{r}
@@ -471,11 +423,8 @@ g +
   facet_grid( Sex~.)
 ```
 
-So, higher BMIs link with diabetic state in both sexes. Also, interesting to see the range of BMI for diabetic females is a little wider than that of males. 
+So, higher BMIs link with diabetic state in both sexes. Also, interesting to see the range of BMI for diabetic females is a little wider than that of males.
 
 Done with EDA here. I think many of the predictors may relate to the response variable, so I'll proceed to modeling to understand more about the stronger predictor variables, then perhaps study further.
-
-
-
 
 [Click here for the Modeling Page](Modeling.html)
