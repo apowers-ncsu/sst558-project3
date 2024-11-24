@@ -113,7 +113,7 @@ temp |>
   collect_metrics()
 ```
 
-Continuing with tuning accordingly for this first, small pass, and then displaying coefficients.
+Continuing with tuning accordingly for this first, small pass, and then displaying importance for each predictor.
 
 ```{r}
 tune_classtree <- temp |>
@@ -124,10 +124,13 @@ first_workflow_classtree <- workflow_classtree |>
 first_fit_classtree <- first_workflow_classtree |>
   fit(first_train)
 
-extract_fit_engine(first_fit_classtree)$imp |>
+temp2 <- extract_fit_engine(first_fit_classtree)$variable.importance
+tibble(term=names(temp2),value=temp2) |>
+  arrange(value) |>
   mutate(term = factor(term, levels = term)) |>
   ggplot(aes(x = term, y = value)) +
   geom_bar(stat ="identity") +
   coord_flip()
 ```
 
+Wow, it is so frustrating to get all the syntax just right to work, in practice! 
