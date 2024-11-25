@@ -265,7 +265,88 @@ Now, let's explore the random forest model family and find its best contender fi
 
 This family makes an ensemble of special trees and finds the average across them. As a regular classification tree is over-impacted by small changes to its training data, random forest models implement bootstrapping and further a random subset of predictors to create its ensemble. Bootstrapping, or creating new samples by selecting from the training data with replacement, helps to avoid the susceptibility to high variance driven by training selections; as we create a set of these, the average has lower variance overall. And the second adjustment is a random selection of predictor inputs, which helps decrease variance and identify possible better fits by minimizing oversized impact due to strong predictors. Again, by creating an ensemble group of models, we can average the results to find a model that will generally have lower variance than the weaker single tree method.
 
-```{r}
+#### Full model tuning
 
+Having already done my first pass to decide on interesting predictors, as part of the first model section, here I am conducting only a standard tuning process. Again, I'm tuning all possible variables, because I have such little experience.
+
+```{r}
+#model definition
+model_randomforest <- rand_forest(
+  mtry = tune(),
+  trees = tune(),
+  min_n = tune()
+  ) |>
+  set_engine("ranger",importance="impurity") |>
+  set_mode("classification")
+
+#workflow using same prior model recipe
+workflow_randomforest <- workflow() |>
+  add_recipe(recipe) |>
+  add_model(model_randomforest)
+
+#tuning prep
+grid_randomforest <- grid_regular(
+  mtry(range=c(1,length(recipe$var_info$role=="predictor"))-1),
+  trees(),
+  min_n(),
+  levels = c(3, 3, 3)
+  )
+
+#run tuning
+temp <- workflow_randomforest |> 
+  tune_grid(
+    resamples = train_5cv,
+    grid=grid_randomforest,
+    metrics = metric_set(mn_log_loss)
+    )
+
+#save best tuning per log-loss
+tune_randomforest <- temp |> select_best(metric="mn_log_loss")
+workflow_randomforest <- workflow_randomforest |>
+  finalize_workflow(tune_randomforest)
+
+#fit on full training data
+fit_randomforest <- workflow_final_randomforest |>
+  fit(train)
+
+#visualize
+fit_randomforest |> 
+  extract_fit_engine() |> 
+  rpart.plot::rpart.plot(roundint=FALSE)
+```
+
+Another unreadable display of a carefully-designed predictive model. The best tree_depth is about 8, of those tested for tuning.
+
+And the log-loss value for this random forest model evaluated on the training dataset:
+
+```{r}
+workflow_randomforest |>
+  last_fit(split,
+           metrics = metric_set(mn_log_loss)
+           ) |>
+  collect_metrics()
+```
+
+### Model selection
+
+Now, let's compare the error of both models against our holdout test data and identify our best option!
+
+```{r}
+tibble(
+  c("classification tree","random forest"),
+  
+  workflow_classtree |>
+  last_fit(split,
+           metrics = metric_set(mn_log_loss)
+           ) |>
+  collect_metrics(),
+  
+  workflow_randomforest |>
+  last_fit(split,
+           metrics = metric_set(mn_log_loss)
+           ) |>
+  collect_metrics()
+  
+)
 ```
 
