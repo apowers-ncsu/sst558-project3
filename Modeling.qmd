@@ -100,7 +100,7 @@ first_grid_classtree <- grid_regular(
   cost_complexity(),
   tree_depth(),
   min_n(),
-  levels = c(3, 3, 3)
+  levels = c(2, 2, 2)
   )
 
 #tuning setup
@@ -223,7 +223,7 @@ grid_classtree <- grid_regular(
   cost_complexity(),
   tree_depth(),
   min_n(),
-  levels = c(3, 3, 3)
+  levels = c(2, 2, 2)
   )
 
 #tuning setup
@@ -247,17 +247,7 @@ fit_classtree |>
   rpart.plot::rpart.plot(roundint=FALSE)
 ```
 
-A pretty tree, though completely unreadable. The best tree_depth is about 8, of those tested for tuning.
-
-And the log-loss value for this classification tree evaluated on the training dataset:
-
-```{r}
-workflow_classtree |>
-  last_fit(split,
-           metrics = metric_set(mn_log_loss)
-           ) |>
-  collect_metrics()
-```
+A pretty tree, though completely unreadable. The best tree_depth is around 8-15, based on various tuning runs.
 
 ### Random Forest
 
@@ -286,10 +276,11 @@ workflow_randomforest <- workflow() |>
 
 #tuning prep
 grid_randomforest <- grid_regular(
-  mtry(range=c(1,length(recipe$var_info$role=="predictor"))-1),
+  #mtry(range=c(1,length(recipe$var_info$role=="predictor"))-1),
+  mtry(c(1,8)),
   trees(),
   min_n(),
-  levels = c(3, 3, 3)
+  levels = c(2, 2, 2)
   )
 
 #run tuning
@@ -306,25 +297,8 @@ workflow_randomforest <- workflow_randomforest |>
   finalize_workflow(tune_randomforest)
 
 #fit on full training data
-fit_randomforest <- workflow_final_randomforest |>
+fit_randomforest <- workflow_randomforest |>
   fit(train)
-
-#visualize
-fit_randomforest |> 
-  extract_fit_engine() |> 
-  rpart.plot::rpart.plot(roundint=FALSE)
-```
-
-Another unreadable display of a carefully-designed predictive model. The best tree_depth is about 8, of those tested for tuning.
-
-And the log-loss value for this random forest model evaluated on the training dataset:
-
-```{r}
-workflow_randomforest |>
-  last_fit(split,
-           metrics = metric_set(mn_log_loss)
-           ) |>
-  collect_metrics()
 ```
 
 ### Model selection
@@ -332,25 +306,23 @@ workflow_randomforest |>
 Now, let's compare the error of both models against our holdout test data and identify our best option!
 
 ```{r}
-tibble(
-  c("classification tree","random forest"),
-  
-  workflow_classtree |>
-  last_fit(split,
-           metrics = metric_set(mn_log_loss)
-           ) |>
-  collect_metrics(),
-  
-  workflow_randomforest |>
+metric_classtree <- workflow_classtree |>
   last_fit(split,
            metrics = metric_set(mn_log_loss)
            ) |>
   collect_metrics()
-  
-)
+
+metric_randomforest <- workflow_randomforest |>
+  last_fit(split,
+           metrics = metric_set(mn_log_loss)
+           ) |>
+  collect_metrics()
+
+metric_classtree
+metric_randomforest
 ```
 
-Our best performing model is _______! Now, we'll set up our API environment, beginning with fitting this to the entire dataset.
+Our best performing model is random forest! Now, we'll set up our API environment, beginning with fitting this to the entire dataset.
 
 ```{r}
 library(plumber)

@@ -2,6 +2,19 @@
 library(GGally)
 library(leaflet)
 
+#my stuff!
+#info endpoint - reply with name and github pages url
+#* @get /info
+function() {
+  "My name is Andy Powers. You may access my Github pages site at: ****"
+}
+#localhost:1776/info
+
+
+
+
+
+
 #Send a message
 #* @get /readme
 function(){
