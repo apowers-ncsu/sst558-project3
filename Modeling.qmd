@@ -350,3 +350,15 @@ tibble(
 )
 ```
 
+Our best performing model is _______! Now, we'll set up our API environment, beginning with fitting this to the entire dataset.
+
+```{r}
+library(plumber)
+r <- plumb("API.r")
+r$run(port = 1776)
+#is hosted at http://localhost:1776
+
+
+#workflow_***** |> fit(data) |> tidy()
+```
+
