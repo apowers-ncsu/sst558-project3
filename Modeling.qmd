@@ -242,12 +242,30 @@ workflow_classtree <- workflow_classtree |>
 fit_classtree <- workflow_classtree |>
   fit(train)
 
-temp2 <- extract_fit_engine(fit_classtree)$variable.importance
-tibble(term=names(temp2),value=temp2) |>
-  arrange(value) |>
-  mutate(term = factor(term, levels = term)) |>
-  ggplot(aes(x = term, y = value)) +
-  geom_bar(stat ="identity") +
-  coord_flip()
+fit_classtree |> 
+  extract_fit_engine() |> 
+  rpart.plot::rpart.plot(roundint=FALSE)
+```
+
+A pretty tree, though completely unreadable. The best tree_depth is about 8, of those tested for tuning.
+
+And the log-loss value for this classification tree evaluated on the training dataset:
+
+```{r}
+workflow_classtree |>
+  last_fit(split,
+           metrics = metric_set(mn_log_loss)
+           ) |>
+  collect_metrics()
+```
+
+### Random Forest
+
+Now, let's explore the random forest model family and find its best contender fit.
+
+This family makes an ensemble of special trees and finds the average across them. As a regular classification tree is over-impacted by small changes to its training data, random forest models implement bootstrapping and further a random subset of predictors to create its ensemble. Bootstrapping, or creating new samples by selecting from the training data with replacement, helps to avoid the susceptibility to high variance driven by training selections; as we create a set of these, the average has lower variance overall. And the second adjustment is a random selection of predictor inputs, which helps decrease variance and identify possible better fits by minimizing oversized impact due to strong predictors. Again, by creating an ensemble group of models, we can average the results to find a model that will generally have lower variance than the weaker single tree method.
+
+```{r}
+
 ```
 
