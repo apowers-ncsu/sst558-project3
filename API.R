@@ -1,97 +1,88 @@
 #myAPI.R 
+#library loads
 library(GGally)
 library(leaflet)
+library(tidyverse)
+library(tidymodels)
+library(plumber)
+
+#read data in
+api_data <- read_csv(file = 'diabetes_binary_health_indicators_BRFSS2015.csv')
+
+#preprocessing
+#simple factors first
+api_data <- api_data |> mutate(
+  Diabetes_binary = factor(Diabetes_binary,labels=c("not diabetic","diabetic")),
+  HighBP = factor(HighBP,labels=c("no high blood pressure","high blood pressure")),
+  HighChol = factor(HighChol,labels=c("no high cholesterol","high cholesterol")),
+  CholCheck = factor(CholCheck,labels=c("no recent cholesterol check","recent cholesterol check")),
+  Smoker = factor(Smoker,labels=c("non-smoker","smoker")),
+  Stroke = factor(Stroke,labels=c("no stroke","stroke")),
+  HeartDiseaseorAttack = factor(HeartDiseaseorAttack,labels=c("no heart problems CHD/MI","heart problems CHD/MI")),
+  PhysActivity = factor(PhysActivity,labels=c("no physical activity","physical activity")),
+  Fruits = factor(Fruits,labels=c("no fruits","fruits")),
+  Veggies = factor(Veggies,labels=c("no vegetables","vegetables")),
+  HvyAlcoholConsump = factor(HvyAlcoholConsump,labels=c("no heavy alcohol","heavy alcohol")),
+  AnyHealthcare = factor(AnyHealthcare,labels=c("no healthcare","healthcare")),
+  NoDocbcCost = factor(NoDocbcCost,labels=c("not avoided doctor for cost","avoided doctor for cost")),
+  DiffWalk = factor(DiffWalk,labels=c("no walking difficulty","walking difficulty")),
+  Sex = factor(Sex,labels=c("female","male"))
+)
+
+#larger categories
+api_data <- api_data |> mutate(
+  GenHlth = factor(GenHlth,labels=c("excellent","very good","good","fair","poor")),
+  Age = factor(Age,labels=c(
+    "18-24",
+    "25-29",
+    "30-34",
+    "35-39",
+    "40-44",
+    "45-49",
+    "50-54",
+    "55-59",
+    "60-64",
+    "65-69",
+    "70-74",
+    "75-79",
+    "80+")),
+  Education = factor(Education,labels=c(
+    "Never attended school or only kindergarten",
+    "Grades 1-8 (Elementary)",
+    "Grades 9-11 (Some high school)",
+    "Grades 12 or GED (High school graduate)",
+    "College 1-3 years (Some college or technical school",
+    "College 4+ years (College graduate)")),
+  Income = factor(Income,labels=c(
+    "[ - $10k)",
+    "[$10k - $15k)",
+    "[$15k - $20k)",
+    "[$20k - $25k)",
+    "[$25k - $35k)",
+    "[$35k - $50k)",
+    "[$50k - $75k)",
+    "[$75k - ]"))
+)
+
+#convert doubles to ints
+api_data <- api_data |> mutate(
+  BMI = as.integer(BMI),
+  MentHlth = as.integer(MentHlth),
+  PhysHlth = as.integer(PhysHlth)
+)
+
+#read and fit model
+load("workflow.rda")
+
 
 #my stuff!
 #info endpoint - reply with name and github pages url
 #* @get /info
 function() {
-  "My name is Andy Powers. You may access my Github pages site at: ****"
+  #####################EDIT SITE LINK####
+  #"My name is Andy Powers. You may access my Github pages site at: ****"
+  #head(api_data)
+  workflow_classtree |> fit(api_data[1:100,])
 }
 #localhost:1776/info
 
-
-
-
-
-
-#Send a message
-#* @get /readme
-function(){
-  "This is our basic API"
-}
-
-#http://localhost:PORT/readme
-
-
-#* Find natural log of a number
-#* @param num Number to find ln of
-#* @get /ln
-function(num){
-  log(as.numeric(num))
-}
-
-#query with http://localhost:PORT/ln?num=1
-
-#* Find multiple of two numbers
-#* @param num1 1st number
-#* @param num2 2nd number
-#* @get /mult
-function(num1, num2){
-  as.numeric(num1)*as.numeric(num2)
-}
-
-#query with http://localhost:PORT/mult?num1=10&num2=20
-
-#* Plot of iris data
-#* @serializer png
-#* @param type base or ggally
-#* @param color TRUE or FALSE (only for ggally)
-#* @get /plotiris
-function(type = "base", color = FALSE){
-  if(tolower(type) == "ggally"){
-    if(color){
-      a <- GGally::ggpairs(iris, aes(color = Species))
-      print(a)
-    } else {
-      a <- GGally::ggpairs(iris)
-      print(a)
-    }
-  } else {
-    pairs(iris)
-  }
-}
-#http://localhost:PORT/plotiris?type=ggally
-
-
-#* Plotting widget
-#* @serializer htmlwidget
-#* @param lat latitude
-#* @param lng longitude
-#* @get /map
-function(lng = 174.768, lat = -36.852){
-  m <- leaflet::leaflet() |>
-    addTiles() |>  # Add default OpenStreetMap map tiles
-    addMarkers(as.numeric(lng), as.numeric(lat))
-  m  # Print the map
-}
-
-#query with http://localhost:PORT/map?lng=174&lat=-36
-
-
-# Choose a predictor
-#* @param predictor
-#* @get /pred
-function(predictor) {
-  data <- iris
-  if (is.numeric(data[[predictor]])) {
-    value <- mean(data[[predictor]])
-    message <- paste("The mean of", predictor, "is", value)
-    return(message)
-  } else if (predictor == "Species") {
-    table <- table(data[[predictor]])
-    return(paste0(names(table), ": ", table))
-  } else {
-    stop("Invalid predictor.")
-  }
-}

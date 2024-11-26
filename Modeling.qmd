@@ -104,21 +104,21 @@ first_grid_classtree <- grid_regular(
   )
 
 #tuning setup
-temp <- first_workflow_classtree |> 
+first_tune_grid_classtree <- first_workflow_classtree |> 
   tune_grid(
     resamples = first_train_5cv,
     grid = first_grid_classtree,
     metrics = metric_set(mn_log_loss)
     )
 
-temp |> 
+first_tune_grid_classtree |>
   collect_metrics()
 ```
 
 Continuing with tuning accordingly for this first, small pass, and then displaying importance for each predictor.
 
 ```{r}
-first_tune_classtree <- temp |>
+first_tune_classtree <- first_tune_grid_classtree |>
   select_best(metric = "mn_log_loss")
 
 first_workflow_classtree <- first_workflow_classtree |>
@@ -126,8 +126,8 @@ first_workflow_classtree <- first_workflow_classtree |>
 first_fit_classtree <- first_workflow_classtree |>
   fit(first_train)
 
-temp2 <- extract_fit_engine(first_fit_classtree)$variable.importance
-tibble(term=names(temp2),value=temp2) |>
+first_importance_classtree <- extract_fit_engine(first_fit_classtree)$variable.importance
+tibble(term=names(first_importance_classtree),value=first_importance_classtree) |>
   arrange(value) |>
   mutate(term = factor(term, levels = term)) |>
   ggplot(aes(x = term, y = value)) +
@@ -227,14 +227,14 @@ grid_classtree <- grid_regular(
   )
 
 #tuning setup
-temp <- workflow_classtree |> 
+tune_grid_classtree <- workflow_classtree |> 
   tune_grid(
     resamples = train_5cv,
     grid = grid_classtree,
     metrics = metric_set(mn_log_loss)
     )
 
-tune_classtree <- temp |> 
+tune_classtree <- tune_grid_classtree |> 
   select_best(metric = "mn_log_loss")
 
 workflow_classtree <- workflow_classtree |>
@@ -276,15 +276,14 @@ workflow_randomforest <- workflow() |>
 
 #tuning prep
 grid_randomforest <- grid_regular(
-  #mtry(range=c(1,length(recipe$var_info$role=="predictor"))-1),
-  mtry(c(1,8)),
-  trees(),
-  min_n(),
-  levels = c(2, 2, 2)
+  mtry(c(2,6)), #choosing min over 1 and max less than full
+  trees(c(100,2000)), #some variation but not too low
+  min_n(c(10,100)), #I dont want min_n 2 as minimum for this giant dataset
+  levels = c(2, 3, 2)
   )
 
 #run tuning
-temp <- workflow_randomforest |> 
+tune_grid_randomforest <- workflow_randomforest |> 
   tune_grid(
     resamples = train_5cv,
     grid=grid_randomforest,
@@ -292,7 +291,7 @@ temp <- workflow_randomforest |>
     )
 
 #save best tuning per log-loss
-tune_randomforest <- temp |> select_best(metric="mn_log_loss")
+tune_randomforest <- tune_grid_randomforest |> select_best(metric="mn_log_loss")
 workflow_randomforest <- workflow_randomforest |>
   finalize_workflow(tune_randomforest)
 
@@ -322,15 +321,10 @@ metric_classtree
 metric_randomforest
 ```
 
-Our best performing model is random forest! Now, we'll set up our API environment, beginning with fitting this to the entire dataset.
+Our best performing model is ******! Let's save it to a file. ###EDIT THIS TO SAVE THE RIGHT ONE!!!###
 
 ```{r}
-library(plumber)
-r <- plumb("API.r")
-r$run(port = 1776)
-#is hosted at http://localhost:1776
+#save(workflow_classtree,file="workflow.rda")
 
-
-#workflow_***** |> fit(data) |> tidy()
 ```
 
