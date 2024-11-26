@@ -221,9 +221,9 @@ workflow_classtree <- workflow() |>
 #grid config
 grid_classtree <- grid_regular(
   cost_complexity(),
-  tree_depth(),
-  min_n(),
-  levels = c(2, 2, 2)
+  tree_depth(c(2,15)), #min of 2 seems more sensible
+  min_n(c(10,100)), #I dont want min_n 2 as minimum for this giant dataset
+  levels = c(3, 3, 3)
   )
 
 #tuning setup
