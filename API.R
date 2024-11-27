@@ -1,4 +1,5 @@
-#myAPI.R 
+#this API provides mostly a method to predict diabetes/non with a given set of inputs
+
 #library loads
 library(GGally)
 library(leaflet)
@@ -10,7 +11,6 @@ library(plumber)
 api_data <- read_csv(file = 'diabetes_binary_health_indicators_BRFSS2015.csv')
 
 #preprocessing
-#simple factors first
 api_data <- api_data |> mutate(
   Diabetes_binary = factor(Diabetes_binary,labels=c("not diabetic","diabetic")),
   HighBP = factor(HighBP,labels=c("no high blood pressure","high blood pressure")),
@@ -71,9 +71,12 @@ api_data <- api_data |> mutate(
   PhysHlth = as.integer(PhysHlth)
 )
 
-#read and fit model
-load("workflow.rda")
+#read and fit model - randomforest was best
+load("workflow_randomforest.rda")
 
+#full first on data
+final_fit <- workflow_randomforest |>
+  fit(filter(api_data,row_number()<=1000))
 
 #my stuff!
 #info endpoint - reply with name and github pages url
@@ -82,7 +85,8 @@ function() {
   #####################EDIT SITE LINK####
   #"My name is Andy Powers. You may access my Github pages site at: ****"
   #head(api_data)
-  workflow_classtree |> fit(api_data[1:100,])
+  #workflow_classtree |> fit(filter(api_data,row_number()==1))
+  predict(final_fit,head(api_data))
 }
 #localhost:1776/info
 
