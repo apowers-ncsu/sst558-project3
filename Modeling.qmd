@@ -141,6 +141,23 @@ Wow, it is so frustrating to get all the syntax just right to work, in practice!
 #overwriting recipe with reference to full scale training dataset
 recipe <- recipe(Diabetes_binary ~ ., data = train) |>
   
+  #stripping out many columns - step_rm NOT step_select
+  step_rm(
+    CholCheck,
+    Smoker,
+    Stroke,
+    PhysActivity,
+    Fruits,
+    HvyAlcoholConsump,
+    AnyHealthcare,
+    NoDocbcCost,
+    GenHlth,
+    Sex,
+    Age,
+    Education,
+    Income
+  ) |>
+  
   #normalize numerics
   step_normalize(
     all_numeric(),
@@ -152,29 +169,7 @@ recipe <- recipe(Diabetes_binary ~ ., data = train) |>
     all_factor_predictors()
   ) |>
 
-  #stripping out many columns
-  ### note! learned that using valid newname=oldname in the select statement caused errors for tuning
-  #try using step_rename?
-  step_select(
-    Diabetes_binary,
-    HighBP_high.blood.pressure,
-    BMI,
-    DiffWalk_walking.difficulty,
-    HighChol_high.cholesterol,
-    HeartDiseaseorAttack_heart.problems.CHD.MI,
-    Veggies_vegetables,
-    #GenHlth_poor,
-    #GenHlth_fair,
-    #GenHlth_good,
-    #GenHlth_very.good,
-    PhysHlth,
-    MentHlth#,
-    #PhysActivity_physical.activity,
-    #Smoker_smoker,
-    #Sex_male
-  ) |>
-  
-  #rename attempt here
+  #rename attempt here, dont touch outcome
   step_rename(
     high_bp = HighBP_high.blood.pressure,
     bmi = BMI,
@@ -182,15 +177,8 @@ recipe <- recipe(Diabetes_binary ~ ., data = train) |>
     high_cholesterol = HighChol_high.cholesterol,
     heart_problems = HeartDiseaseorAttack_heart.problems.CHD.MI,
     vegetables = Veggies_vegetables,
-    #health_poor = GenHlth_poor,
-    #health_fair = GenHlth_fair,
-    #health_good = GenHlth_good,
-    #health_very_good = GenHlth_very.good,
     physical_health_problems = PhysHlth,
-    mental_health_problems = MentHlth#,
-    #physical_activity = PhysActivity_physical.activity,
-    #smoker = Smoker_smoker,
-    #male = Sex_male
+    mental_health_problems = MentHlth
   )
 
 #checking results look ok
@@ -321,11 +309,10 @@ metric_classtree
 metric_randomforest
 ```
 
-Our best performing model is ******! Let's save it to a file. ###EDIT THIS TO SAVE THE RIGHT ONE!!!###
+Our best performing model is the random forest model. Let's save it to a file.
 
 ```{r}
 save(workflow_classtree,file="workflow_classtree.rda")
 save(workflow_randomforest,file="workflow_randomforest.rda")
 
 ```
-
