@@ -87,7 +87,7 @@ load("workflow_randomforest.rda")
 final_fit <- workflow_randomforest |>
   fit(filter(api_data,row_number()<=1000)) ########## EDIT LATER to full data##########################
   #fit(api_data)
-
+api_data <- filter(api_data,row_number()<=1000)
 
 
 #info endpoint - reply with name and github pages url
@@ -152,3 +152,24 @@ function(
 #localhost:1776/pred?BMI=40&MentHlth=30&PhySHlth=30&HighBP=1&HighChol=1&HeartDiseaseorAttack=1&Veggies=1&DiffWalk=1
 #localhost:1776/pred
 #localhost:1776/pred?BMI=40&HighBP=1&HighChol=1&Veggies=0&DiffWalk=0
+
+
+
+#confusion endpoint - visual of confusion matrix
+#* @serializer png
+#* @get /confusion
+function() {
+  #create confusion matrix
+  truth_preds <- tibble(
+    truth = api_data$Diabetes_binary,
+    preds = predict(final_fit,api_data)
+  )
+  truth_preds <- truth_preds |> mutate(
+    preds = as_factor(preds$.pred_class)
+  )
+  cm <- conf_mat(truth_preds,truth,preds)
+  print(autoplot(cm, type = "heatmap"))
+  
+
+}
+#localhost:1776/confusion
