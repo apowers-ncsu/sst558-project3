@@ -46,6 +46,9 @@ I'm using a 70% split for a training subset of the data. Here, I'm also specifyi
 ```{r}
 set.seed(1)
 
+#for debugging
+#data = filter(data,row_number()<=200)
+
 split <- initial_split(data, prop = 0.7)
 train <- training(split)
 test <- testing(split)
@@ -53,6 +56,7 @@ train_5cv <- vfold_cv(train, 5)
 
 #adding another copy for a first, smaller pass to find interesting variables for full modeling
 first_data <- sample_n(data, 20000)
+#first_data <- sample_n(data, 200) #debug only
 first_split <- initial_split(first_data, prop = 0.7)
 first_train <- training(first_split)
 first_test <- testing(first_split)
