@@ -425,6 +425,12 @@ g +
 
 So, higher BMIs link with diabetic state in both sexes. Also, interesting to see the range of BMI for diabetic females is a little wider than that of males.
 
-Done with EDA here. I think many of the predictors may relate to the response variable, so I'll proceed to modeling to understand more about the stronger predictor variables, then perhaps study further.
+Done with EDA here. I think many of the predictors may relate to the response variable, so I'll proceed to modeling to understand more about the stronger predictor variables, then perhaps study further. I'll save and load the updated tibble with my data for processing in the Modeling page.
 
 [Click here for the Modeling Page](Modeling.html)
+
+```{r}
+#here, just saving data frame for use in Modeling
+save(data,file="data.RData")
+```
+

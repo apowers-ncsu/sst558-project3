@@ -24,6 +24,17 @@ There are six components to this project.
 
 6.  Demo - video showing me demonstrating my Docker container
 
+### Libraries and loads
+
+For rendering, I need to reload libraries. Also, I'm just sharing my data frame from the EDA file and loading it here, rather than redoing the EDA code.
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+load("data.RData")
+```
+
+
 ## Modeling
 
 This Quarto file continues into the Modeling step. We need to make a training/test split (70/30) and include a seed. We will predict the diabetes response variable using different models via `tidymodels`, evaluating with 5CV log-loss as metric. I'm not stratifying the split.
@@ -41,7 +52,8 @@ test <- testing(split)
 train_5cv <- vfold_cv(train, 5)
 
 #adding another copy for a first, smaller pass to find interesting variables for full modeling
-first_split <- initial_split(sample_n(data, 20000), prop = 0.7)
+first_data <- sample_n(data, 20000)
+first_split <- initial_split(first_data, prop = 0.7)
 first_train <- training(first_split)
 first_test <- testing(first_split)
 first_train_5cv <- vfold_cv(first_train, 5)
@@ -309,7 +321,7 @@ metric_classtree
 metric_randomforest
 ```
 
-Our best performing model is the random forest model. Let's save it to a file.
+Our best performing model is the random forest model. Let's save it to a file, to reference in our API.
 
 ```{r}
 save(workflow_classtree,file="workflow_classtree.rda")
