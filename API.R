@@ -85,8 +85,10 @@ defaults <- tibble(
 #load and fit model - randomforest was best
 load("workflow_randomforest.rda")
 final_fit <- workflow_randomforest |>
-  #fit(filter(api_data,row_number()<=1000)) ########## EDIT LATER to full data
-  fit(api_data)
+  fit(filter(api_data,row_number()<=1000)) ########## EDIT LATER to full data##########################
+  #fit(api_data)
+
+
 
 #info endpoint - reply with name and github pages url
 #* @get /info
@@ -96,47 +98,40 @@ function() {
 }
 #localhost:1776/info
 
+
+
 #pred endpoint - take predictors and provide model prediction
 #* @get /pred
-#* @param xBMI positive integer
-#* @param xMentHlth 0-30 days of poor mental health
-#* @param xPhysHlth 0-30 days of poor physical health
-#* @param xHighBP binary
-#* @param xHighChol binary
-#* @param xHeartDiseaseorAttack binary
-#* @param xVeggies binary
-#* @param xDiffWalk binary
+#* @param BMI:int positive integer
+#* @param MentHlth:int 0-30 days of poor mental health
+#* @param PhysHlth:int 0-30 days of poor physical health
+#* @param HighBP:int binary
+#* @param HighChol:int binary
+#* @param HeartDiseaseorAttack:int binary
+#* @param Veggies:int binary
+#* @param DiffWalk:int binary
 function(
-    xBMI = defaults$BMI,
-    xMentHlth = defaults$MentHlth,
-    xPhysHlth = defaults$PhysHlth,
-    xHighBP = defaults$HighBP,
-    xHighChol = defaults$HighChol,
-    xHeartDiseaseorAttack = defaults$HeartDiseaseorAttack,
-    xVeggies = defaults$Veggies,
-    xDiffWalk = defaults$DiffWalk
+    BMI = defaults$BMI,
+    MentHlth = defaults$MentHlth,
+    PhysHlth = defaults$PhysHlth,
+    HighBP = defaults$HighBP,
+    HighChol = defaults$HighChol,
+    HeartDiseaseorAttack = defaults$HeartDiseaseorAttack,
+    Veggies = defaults$Veggies,
+    DiffWalk = defaults$DiffWalk
     ) {
 
-
-
-
-  #predict(final_fit,head(data))
+  #update to match EDA; adding 'x' because I can't deal with .env/.data yet
+  xBMI <- as.integer(BMI)
+  xMentHlth <- as.integer(MentHlth)
+  xPhysHlth <- as.integer(PhysHlth)
+  xHighBP <- if (HighBP == 0) "no high blood pressure" else "high blood pressure"
+  xHighChol <- if (HighChol == 0) "no high cholesterol" else "high cholesterol"
+  xHeartDiseaseorAttack <- if (HeartDiseaseorAttack == 0) "no heart problems CHD/MI" else "heart problems CHD/MI"
+  xVeggies <- if (Veggies == 0) "no vegetables" else "vegetables"
+  xDiffWalk <- if (DiffWalk == 0) "no walking difficulty" else "walking difficulty"
   
-  #first, run the EDA needed on the vars
-  ####FIX THIS NEXT 
-  #gotta see whether i need to do this, given that I can't quite FACTOR
-  #do i need to send in the number or the label? probably number but...
-
-  #bmi, mental, physical all are fine as numerics
-  xBMI <- as.integer(xBMI)
-  xMentHlth <- as.integer(xMentHlth)
-  xPhysHlth <- as.integer(xPhysHlth)
-  xHighBP <- if (xHighBP == 0) "no high blood pressure" else "high blood pressure"
-  xHighChol <- if (xHighChol == 0) "no high cholesterol" else "high cholesterol"
-  xHeartDiseaseorAttack <- if (xHeartDiseaseorAttack == 0) "no heart problems CHD/MI" else "heart problems CHD/MI"
-  xVeggies <- if (xVeggies == 0) "no vegetables" else "vegetables"
-  xDiffWalk <- if (xDiffWalk == 0) "no walking difficulty" else "walking difficulty"
-  
+  #prep tibble to send for prediction
   params <- add_row(api_data[0,]) |> 
     mutate(
       BMI = xBMI,
@@ -149,7 +144,11 @@ function(
       DiffWalk = xDiffWalk
   )
   
+  #predict!
   predict(final_fit,params)
 
 }
+#localhost:1776/pred?BMI=40&MentHlth=20
+#localhost:1776/pred?BMI=40&MentHlth=30&PhySHlth=30&HighBP=1&HighChol=1&HeartDiseaseorAttack=1&Veggies=1&DiffWalk=1
 #localhost:1776/pred
+#localhost:1776/pred?BMI=40&HighBP=1&HighChol=1&Veggies=0&DiffWalk=0
