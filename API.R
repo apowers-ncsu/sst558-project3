@@ -1,5 +1,12 @@
 #this API provides mostly a method to predict diabetes/non with a given set of inputs
 
+#relevant codes for build, test, export, etc.
+#BASH > gzip api_andypowers_sst558_project3.tar
+#C:\stats>docker save -o api_andypowers_sst558_project3.tar api
+#C:\stats>docker run --rm -p 1776:1776 api
+#C:\stats>docker build -t api .
+
+
 #library loads
 library(GGally)
 library(leaflet)
@@ -7,11 +14,13 @@ library(tidyverse)
 library(tidymodels)
 library(plumber)
 library(DescTools)
+library(ranger)
 
 #set port 1776
 options("plumber.port" = 1776)
 
 #read raw data in
+print(getwd())
 api_data <- read_csv(file = 'diabetes_binary_health_indicators_BRFSS2015.csv')
 raw_data <- api_data #for getting means, modes as defaults
 
@@ -85,9 +94,10 @@ defaults <- tibble(
 #load and fit model - randomforest was best
 load("workflow_randomforest.rda")
 final_fit <- workflow_randomforest |>
-  fit(filter(api_data,row_number()<=1000)) ########## EDIT LATER to full data##########################
-  #fit(api_data)
+  fit(api_data)
+  #fit(filter(api_data,row_number()<=1000)) #for testing only!
 api_data <- filter(api_data,row_number()<=1000)
+
 
 
 #info endpoint - reply with name and github pages url
@@ -170,6 +180,5 @@ function() {
   cm <- conf_mat(truth_preds,truth,preds)
   print(autoplot(cm, type = "heatmap"))
   
-
 }
 #localhost:1776/confusion
